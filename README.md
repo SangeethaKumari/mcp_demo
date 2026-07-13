@@ -129,6 +129,66 @@ sequenceDiagram
     end
 ```
 
+### Internal Component Flow (Google ADK & FastMCP)
+
+#### What is FastMCP?
+**FastMCP** is a high-level Python framework designed to simplify the creation of Model Context Protocol (MCP) servers. Rather than managing low-level JSON-RPC protocol parsing, schema creation, and network transport details manually, FastMCP:
+1. **Registers Python functions** as tools using simple decorators (e.g., `@mcp.tool`).
+2. **Generates JSON Schemas** automatically from Python type hints and Pydantic model annotations.
+3. **Manages Transports** (such as HTTP Server-Sent Events / SSE or Standard Input/Output / Stdio) to receive and reply to messages.
+
+#### Component Interaction & Invocation Order
+
+When the Google ADK Agent decides it needs to use a tool, the invocation flows through the following components:
+
+```mermaid
+graph TD
+    classDef adk fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef fastmcp fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+    classDef tool fill:#fff3e0,stroke:#ef6c00,stroke-width:2px;
+    classDef logic fill:#fafafa,stroke:#9e9e9e,stroke-width:2px;
+
+    %% 1. ADK Agent Component
+    subgraph GoogleADKAgent ["1. Google ADK Agent Client"]
+        ADK["LlmAgent<br/>(Orchestrator)"]:::adk
+        Toolset["MCPToolset<br/>(HTTP Client / Connector)"]:::adk
+        ADK -->|Invokes Tool Request| Toolset
+    end
+
+    %% 2. FastMCP Server internals
+    subgraph FastMCPServer ["2. FastMCP Server (Internals)"]
+        Transport["SSE / HTTP Transport Layer<br/>(Listens at /mcp)"]:::fastmcp
+        Router["JSON-RPC Router<br/>(Parses tools/call)"]:::fastmcp
+        Registry["Tool Registry<br/>(Matches name to function)"]:::fastmcp
+        Validator["Pydantic Input Validator<br/>(Validates parameters)"]:::fastmcp
+
+        Transport -->|Sends Payload| Router
+        Router -->|Looks Up Tool Name| Registry
+        Router -->|Performs Validation| Validator
+    end
+
+    %% 3. MCP Tool Function & Business Logic
+    subgraph MCPTool ["3. MCP Tool Layer"]
+        DecoFunc["Registered Python Function<br/>(decorated with @mcp.tool)"]:::tool
+    end
+
+    subgraph BusinessLayer ["4. Core Business Layer"]
+        Service["CustomerSupportService"]:::logic
+        Repo["SupportRepository"]:::logic
+    end
+
+    %% Invocation Flow arrows
+    Toolset -->|Step A: POST /mcp<br/>(SSE JSON-RPC Request)| Transport
+    Validator -->|Step B: Runs Validated Arguments| DecoFunc
+    DecoFunc -->|Step C: Calls Business Logic| Service
+    Service -->|Step D: Query database| Repo
+
+    %% Styling subgraphs
+    style GoogleADKAgent fill:#f1f8e9,stroke:#558b2f,stroke-dasharray: 5 5;
+    style FastMCPServer fill:#e3f2fd,stroke:#0d47a1,stroke-dasharray: 5 5;
+    style MCPTool fill:#fff8e1,stroke:#ff8f00,stroke-dasharray: 5 5;
+    style BusinessLayer fill:#f5f5f5,stroke:#37474f,stroke-dasharray: 5 5;
+```
 
 
 ## Run The Demo
