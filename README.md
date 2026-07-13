@@ -30,15 +30,15 @@ graph TD
     Audit["AuditLogger"]:::core
     Phoenix["Phoenix Observability"]:::obs
 
-    User -->|Sends prompts / messages| Agent
-    Agent -->|Invokes tools over HTTP SSE/JSON| MCP
-    MCP -->|Delegates to business logic| Service
-    Service -->|Uses transactional queries| Repo
-    Repo -->|Reads/writes orders, customers, processed_responses| DB
-    Service -->|Logs business outcomes| Audit
-    Audit -->|Writes audit logs| DB
-    Agent -.->|OpenTelemetry Traces| Phoenix
-    MCP -.->|OpenTelemetry Traces| Phoenix
+    User -->|"Sends prompts / messages"| Agent
+    Agent -->|"Invokes tools over HTTP SSE/JSON"| MCP
+    MCP -->|"Delegates to business logic"| Service
+    Service -->|"Uses transactional queries"| Repo
+    Repo -->|"Reads/writes orders, customers, processed_responses"| DB
+    Service -->|"Logs business outcomes"| Audit
+    Audit -->|"Writes audit logs"| DB
+    Agent -.->|"OpenTelemetry Traces"| Phoenix
+    MCP -.->|"OpenTelemetry Traces"| Phoenix
 
     subgraph Business Logic Layer
         Service
@@ -178,10 +178,10 @@ graph TD
     end
 
     %% Invocation Flow arrows
-    Toolset -->|Step A: POST /mcp<br/>(SSE JSON-RPC Request)| Transport
-    Validator -->|Step B: Runs Validated Arguments| DecoFunc
-    DecoFunc -->|Step C: Calls Business Logic| Service
-    Service -->|Step D: Query database| Repo
+    Toolset -->|"Step A: POST /mcp<br/>(SSE JSON-RPC Request)"| Transport
+    Validator -->|"Step B: Runs Validated Arguments"| DecoFunc
+    DecoFunc -->|"Step C: Calls Business Logic"| Service
+    Service -->|"Step D: Query database"| Repo
 
     %% Styling subgraphs
     style GoogleADKAgent fill:#f1f8e9,stroke:#558b2f,stroke-dasharray: 5 5;
