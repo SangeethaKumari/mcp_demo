@@ -1,0 +1,29 @@
+[project]
+name = "mcp_customer_support_demo"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic>=2.0.0",
+    "google-adk>=1.16.0",
+    "svlearn-bootcamp>=0.1.7",
+    "litellm>=1.0.0",
+    "arize-phoenix>=12.6.1",
+    "arize-phoenix-otel>=0.13.1",
+    "openinference-instrumentation-google-adk>=0.1.6",
+    "google-cloud-aiplatform[adk,agent-engines]>=1.122.0",
+    "arize-otel>=0.10.0",
+    "crewai-tools>=1.2.1",
+    "fastmcp>=3.4.2",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.sdist]
+include = ["/src", "README.md", "pyproject.toml"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/customer_support", "src/playground"]
